@@ -317,6 +317,22 @@ void CopyTip(wchar_t* dst, size_t cap, const std::wstring& s) {
     dst[cap - 1] = 0;
 }
 
+// Drivers write the breakdown as "L 80%, R 75%, case 40%"; translate the first word of each part.
+std::wstring TranslateDetail(const std::wstring& d) {
+    std::wstring out;
+    size_t i = 0;
+    while (i <= d.size()) {
+        size_t end = d.find(L", ", i);
+        std::wstring part = d.substr(i, end == std::wstring::npos ? std::wstring::npos : end - i);
+        size_t sp = part.find(L' ');
+        if (sp != std::wstring::npos) part = T(part.substr(0, sp)) + part.substr(sp);
+        out += (out.empty() ? L"" : L", ") + part;
+        if (end == std::wstring::npos) break;
+        i = end + 2;
+    }
+    return out;
+}
+
 std::wstring StatusText(const TrayEntry& e) {
     const auto& s = e.st;
     if (!s.connected) return T(L"off / not connected");
@@ -325,7 +341,7 @@ std::wstring StatusText(const TrayEntry& e) {
     else if (s.percent >= 0) t = std::to_wstring(s.percent) + L"%";
     else if (e.lastPct >= 0) t = std::to_wstring(e.lastPct) + T(L"% (last known)");
     else t = T(L"unknown");
-    if (!s.detail.empty() && s.percent >= 0) t += L" (" + s.detail + L")";
+    if (!s.detail.empty() && s.percent >= 0) t += L" (" + TranslateDetail(s.detail) + L")";
     if (s.charging) t += T(L", charging");
     if (s.asleep) t += T(L", asleep");
     return t;

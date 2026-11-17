@@ -525,7 +525,7 @@ std::wstring MonitorLabel(HWND bar) {
     MONITORINFOEXW mi{}, pm{};
     mi.cbSize = pm.cbSize = sizeof(MONITORINFOEXW);
     HMONITOR mon = MonitorFromWindow(bar, MONITOR_DEFAULTTONEAREST);
-    if (!GetMonitorInfoW(mon, &mi)) return L"Other monitor";
+    if (!GetMonitorInfoW(mon, &mi)) return T(L"Other monitor");
     std::wstring dev = mi.szDevice;
     size_t d = dev.find(L"DISPLAY");
     std::wstring label = d != std::wstring::npos ? T(L"Display ") + dev.substr(d + 7) : std::wstring(T(L"Other monitor"));
